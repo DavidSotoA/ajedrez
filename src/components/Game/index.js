@@ -3,8 +3,9 @@ import { Container } from './styles'
 import { Board } from '../Board'
 import { Pawn, pawnMoves } from '../Pawn'
 import { Horse, horseMoves } from '../Horse'
-import { getRow } from '../Board'
-import { numberToAlpha, getCellColor, checkNested, getArrayIndexFromBoard } from '../../Utilities'
+import { King, kingMoves } from '../King'
+import { getRow, getCol, validMove } from '../Board'
+import { numberToAlpha, getCellColor, checkNested, getArrayIndexFromBoard, alphaToNumber } from '../../Utilities'
 import clonedeep from 'lodash.clonedeep'
 import { config } from './config'
 
@@ -15,7 +16,8 @@ const getDefaultBoard = () => {
     const cellIndex = `${numberToAlpha((index % size))}${size - Math.floor(index / size)}`
     acc[cellIndex] = {
       ...setPiecesInBoard(cellIndex),
-      color: getCellColor(index, size, config.cellColorOne, config.cellColorTwo)
+      color: getCellColor(index, size, config.cellColorOne, config.cellColorTwo),
+      board: 'none'
     }
     return acc
   }, {})
@@ -56,12 +58,19 @@ const setPiecesInBoard = (cellIndex) => {
   const blackPawns = (cellIndex) => getRow(cellIndex) === '7' && { piece: <Pawn />, moves: pawnMoves, player: 'black' }
   const whiteHorses = (cellIndex) => ['C1', 'F1'].includes(cellIndex) && { piece: <Horse isWhite />, moves: horseMoves, player: 'white' }
   const blackHorses = (cellIndex) => ['C8', 'F8'].includes(cellIndex) && { piece: <Horse />, moves: horseMoves, player: 'black' }
+  const whiteKing = (cellIndex) => cellIndex === 'D1' && { piece: <King isWhite />, moves: kingMoves, player: 'white' }
+  const blackKing = (cellIndex) => cellIndex === 'D8' && { piece: <King />, moves: kingMoves, player: 'black' }
 
-  return whitePawns(cellIndex) ||
+
+  return (
+    blackKing(cellIndex) ||
+    whiteKing(cellIndex) ||
+    whitePawns(cellIndex) ||
     blackPawns(cellIndex) ||
     whiteHorses(cellIndex) ||
     blackHorses(cellIndex) ||
     null
+  )
 }
 
 const isMyTurn = (cell, currentPlayer) => {
@@ -70,6 +79,30 @@ const isMyTurn = (cell, currentPlayer) => {
 
 const updatePlayer = (currentPlayer) => {
   return currentPlayer === 'white' ? 'black' : 'white'
+}
+
+const moves = (index, board, pieceMoves) => {
+  const row = parseInt(getRow(index))
+  const col = alphaToNumber(getCol(index))
+  const cell = board[index]
+  const player = cell.player
+
+  const availabeMoves = pieceMoves(row, col, player)
+
+  const filterMoves = availabeMoves.filter( moveIndex => {
+    const rowIndex = getRow(moveIndex)
+    const colIndex = getCol(moveIndex)
+    const targetCell = board[moveIndex]
+
+    return validMove(colIndex, rowIndex, cell, targetCell)
+  })
+
+  const newBoard = { ...board }
+  filterMoves.forEach(moveIndex => {
+    newBoard[moveIndex].border = 'red'
+  })
+
+  return newBoard;
 }
 
 
@@ -82,11 +115,11 @@ export const Game = () => {
   const [board, setBoard] = useState(initBoard)
 
 
-  const onClickPiece = (index, moves) => {
+  const onClickPiece = (index, pieceMoves) => {
     if (!isMyTurn(board[index], currentPlayer)) return board;
 
     const clearedBoard = clearMovesFromBoard(board)
-    const newBoard = moves(index, clearedBoard)
+    const newBoard = moves(index, clearedBoard, pieceMoves)
     newBoard[index].color = config.cellColorClick 
     setWaitForMove({ fromIndex: index })
     setBoard(newBoard)
@@ -103,14 +136,16 @@ export const Game = () => {
     setBoard(clearedBoard)
   }
 
-  const onClickCell = (index, moves) => {
-    if (moves) onClickPiece(index, moves)
+  const onClickCell = (index, pieceMoves) => {
+    if (pieceMoves) onClickPiece(index, pieceMoves)
     else onClickEmptyCell(index, board)
   }
 
   return (
     <Container>
       <Board size={8} board={board} handleClickCell={onClickCell} />
+      <br/>
+      <strong><h2>Player: {currentPlayer}</h2></strong>
     </Container>
   )
 }

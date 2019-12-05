@@ -21,12 +21,11 @@ export const getRow = (cellIndex) => {
   return cellIndex[1]
 }
 
-export const validMove = (colIndex, rowIndex, board) => {
+export const validMove = (colIndex, rowIndex, currentCell, targetCell) => {
+  if (!targetCell) return false
   if (colIndex < 'A' || colIndex > 'H') return false
   if (rowIndex < 1 || rowIndex > 8) return false
-
-  const cellIndex = `${colIndex}${rowIndex}`
-  if (board[cellIndex].piece) return false
+  if (targetCell.player === currentCell.player) return false
 
   return true
 }
