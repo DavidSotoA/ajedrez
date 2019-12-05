@@ -16,6 +16,7 @@ export const BoardGame = styled.div`
 export const Cell = styled.div`
   background: ${ p => p.background ? p.background : 'green'};
   border: ${p => p.border ? 'solid red 2px' : ''};
+  cursor: ${p => p.border ? 'pointer' : ''};
   display: flex;
   justify-content: center;
   align-items: center;

@@ -2,11 +2,11 @@ import React from 'react'
 import { BoardGame, Cell } from './styles'
 
 const renderCells = (board, handleClickCell) => {
-  console.log(board)
+
   return Object.keys(board).map((key, index) => {
     const cell = board[key]
     return (
-      <Cell onClick={() =>handleClickCell(key, cell.moves)} id={key} border={cell.border} background={cell.color} key={index}>
+      <Cell onClick={() => handleClickCell(key, cell.moves)} id={key} border={cell.border} background={cell.color} key={index}>
         {cell.piece}
       </Cell>
     )
@@ -36,6 +36,6 @@ export const Board = ({ size = 8, board, handleClickCell }) => {
   return (
     <BoardGame size={size} >
       {renderCells(board, handleClickCell)}
-    </BoardGame> 
+    </BoardGame>
   )
 }
