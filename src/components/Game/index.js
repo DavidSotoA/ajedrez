@@ -5,6 +5,8 @@ import { Pawn, pawnMoves } from '../Pawn'
 import { Horse, horseMoves } from '../Horse'
 import { King, kingMoves } from '../King'
 import { Rook, rookMoves } from '../Rook'
+import { Bishop, bishopMoves } from '../Bishop'
+import { Queen, queenMoves } from '../Queen'
 
 import { getRow, getCol, validMove } from '../Board'
 import { numberToAlpha, getCellColor, checkNested, getArrayIndexFromBoard, alphaToNumber } from '../../Utilities'
@@ -56,19 +58,27 @@ const movePiece = (fromIndex, toIndex, board) => {
 }
 
 const setPiecesInBoard = (cellIndex) => {
-  const whiteKing = (cellIndex) => cellIndex === 'D4' && { piece: <King isWhite />, moves: kingMoves, player: 'white' }
+  const whiteKing = (cellIndex) => cellIndex === 'D1' && { piece: <King isWhite />, moves: kingMoves, player: 'white' }
   const blackKing = (cellIndex) => cellIndex === 'D8' && { piece: <King />, moves: kingMoves, player: 'black' }
   const whitePawns = (cellIndex) => getRow(cellIndex) === '2' && { piece: <Pawn isWhite />, moves: pawnMoves, player: 'white' }
   const blackPawns = (cellIndex) => getRow(cellIndex) === '7' && { piece: <Pawn />, moves: pawnMoves, player: 'black' }
-  const whiteHorses = (cellIndex) => ['C1', 'F1'].includes(cellIndex) && { piece: <Horse isWhite />, moves: horseMoves, player: 'white' }
-  const blackHorses = (cellIndex) => ['C8', 'F8'].includes(cellIndex) && { piece: <Horse />, moves: horseMoves, player: 'black' }
+  const whiteHorses = (cellIndex) => ['B1', 'G1'].includes(cellIndex) && { piece: <Horse isWhite />, moves: horseMoves, player: 'white' }
+  const blackHorses = (cellIndex) => ['B8', 'G8'].includes(cellIndex) && { piece: <Horse />, moves: horseMoves, player: 'black' }
 
-  const whiteRook = (cellIndex) => ['A1', 'F3'].includes(cellIndex) && { piece: <Rook isWhite />, moves: rookMoves, player: 'white' }
+  const whiteRook = (cellIndex) => ['A1', 'H1'].includes(cellIndex) && { piece: <Rook isWhite />, moves: rookMoves, player: 'white' }
   const blackRook = (cellIndex) => ['A8', 'H8'].includes(cellIndex) && { piece: <Rook />, moves: rookMoves, player: 'black' }
  
-
-
+  const whiteBishop = (cellIndex) => ['C1', 'F1'].includes(cellIndex) && { piece: <Bishop isWhite />, moves: bishopMoves, player: 'white' }
+  const blackBishop = (cellIndex) => ['C8', 'F8'].includes(cellIndex) && { piece: <Bishop />, moves: bishopMoves, player: 'black' }
+ 
+  const whiteQueen = (cellIndex) => cellIndex === 'E1' && { piece: <Queen isWhite />, moves: queenMoves, player: 'white' }
+  const blackQueen = (cellIndex) => cellIndex === 'E8' && { piece: <Queen />, moves: queenMoves, player: 'black' }
+ 
   return (
+    whiteQueen(cellIndex) ||
+    blackQueen(cellIndex) ||
+    whiteBishop(cellIndex) ||
+    blackBishop(cellIndex) ||
     whiteRook(cellIndex) ||
     blackRook(cellIndex) ||
     blackKing(cellIndex) ||

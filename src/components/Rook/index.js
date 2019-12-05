@@ -10,8 +10,6 @@ export const Rook = ({ isWhite }) => {
 }
 
 
-
-
 export const rookMoves = (row, col, cell, board, standarFilter, player) => {
 
     const moves = getCrossMoves(row, col, board)

@@ -1,33 +1,38 @@
+const criteria = (acc, index, board) => {
+    if (acc.stop) return acc;
+
+    const stop = (board[index].piece) ? true : false
+    return { stop, moves: [...acc.moves, index] }
+}
+
 export const getCrossMoves = (row, col, board) => {
 
-    const criteria = (acc, index, board) => {
-        if (acc.stop) return acc;
+    const topSize = 8 - row;
+    const downSize = row - 1;
+    const rightSize = 64 + 8 - col;
+    const leftSize = col - 65;
 
-        const stop = (board[index].piece) ? true : false
-        return { stop, moves: [...acc.moves, index] }
-    }
-
-    const up = Array(8 - row).fill().reduce((acc, _, index) => {
+    const up = Array(topSize).fill().reduce((acc, _, index) => {
         const cellIndex = `${String.fromCharCode(col)}${index + row + 1}`;
         return criteria(acc, cellIndex, board)
     },
         { stop: false, moves: [] }).moves
 
-    const down = Array(row - 1).fill().reduce((acc, _, index) => {
+    const down = Array(downSize).fill().reduce((acc, _, index) => {
         const cellIndex = `${String.fromCharCode(col)}${row - index - 1}`;
         return criteria(acc, cellIndex, board)
     },
         { stop: false, moves: [] }).moves
 
 
-    const right = Array(64 + 8 - col).fill().reduce((acc, _, index) => {
+    const right = Array(rightSize).fill().reduce((acc, _, index) => {
         const cellIndex = `${String.fromCharCode(index + col + 1)}${row}`;
         return criteria(acc, cellIndex, board)
     },
         { stop: false, moves: [] }).moves
 
 
-    const left = Array(col - 65).fill().reduce((acc, _, index) => {
+    const left = Array(leftSize).fill().reduce((acc, _, index) => {
         const cellIndex = `${String.fromCharCode(col - index - 1)}${row}`;
         return criteria(acc, cellIndex, board)
     },
@@ -36,4 +41,46 @@ export const getCrossMoves = (row, col, board) => {
     const moves = [...up, ...right, ...down, ...left]
 
     return moves
+}
+
+
+export const getDiagonalMoves = (row, col, board) => {
+
+    const topSize = 8 - row;
+    const downSize = row - 1;
+    const rightSize = 64 + 8 - col;
+    const leftSize = col - 65;
+
+    const topRight = Array( Math.min(topSize, rightSize) ).fill().reduce((acc, _, index) => {
+        const cellIndex = `${String.fromCharCode(col + index + 1)}${index + row + 1}`;
+        return criteria(acc, cellIndex, board)
+    },
+        { stop: false, moves: [] }).moves
+
+
+    const downRight = Array( Math.min(downSize, rightSize) ).fill().reduce((acc, _, index) => {
+        const cellIndex = `${String.fromCharCode(col + index + 1)}${row - index -1}`;
+        return criteria(acc, cellIndex, board)
+    },
+        { stop: false, moves: [] }).moves
+    
+
+    const downLeft = Array( Math.min(downSize, leftSize) ).fill().reduce((acc, _, index) => {
+        const cellIndex = `${String.fromCharCode(col - index - 1)}${row - index -1}`;
+        return criteria(acc, cellIndex, board)
+    },
+        { stop: false, moves: [] }).moves
+    
+
+    const topLeft = Array( Math.min(topSize, leftSize) ).fill().reduce((acc, _, index) => {
+        const cellIndex = `${String.fromCharCode(col - index - 1)}${row  +  index  + 1}`;
+        return criteria(acc, cellIndex, board)
+    },
+        { stop: false, moves: [] }).moves
+    
+
+    const moves = [...topRight, ...downRight, ...downLeft, ...topLeft]
+
+    return moves
+    
 }
