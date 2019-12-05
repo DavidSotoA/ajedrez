@@ -44,11 +44,18 @@ const clearMovesFromBoard = (board) => {
 
 }
 
+const capturePiece = ( fromCell, targetCell ) => {
+
+}
+
 const movePiece = (fromIndex, toIndex, board) => {
   const newBoard = clonedeep(board);
   const { piece, moves, player } = newBoard[fromIndex]
+  const targetCell = newBoard[toIndex]
 
-  newBoard[toIndex] = { ...newBoard[toIndex], piece, moves, player }
+  console.log('123')
+
+  newBoard[toIndex] = { ...targetCell, piece, moves, player }
 
   newBoard[fromIndex].piece = null
   newBoard[fromIndex].moves = null
@@ -60,17 +67,16 @@ const movePiece = (fromIndex, toIndex, board) => {
 const setPiecesInBoard = (cellIndex) => {
   const whiteKing = (cellIndex) => cellIndex === 'D1' && { piece: <King isWhite />, moves: kingMoves, player: 'white' }
   const blackKing = (cellIndex) => cellIndex === 'D8' && { piece: <King />, moves: kingMoves, player: 'black' }
+
   const whitePawns = (cellIndex) => getRow(cellIndex) === '2' && { piece: <Pawn isWhite />, moves: pawnMoves, player: 'white' }
   const blackPawns = (cellIndex) => getRow(cellIndex) === '7' && { piece: <Pawn />, moves: pawnMoves, player: 'black' }
+  
   const whiteHorses = (cellIndex) => ['B1', 'G1'].includes(cellIndex) && { piece: <Horse isWhite />, moves: horseMoves, player: 'white' }
   const blackHorses = (cellIndex) => ['B8', 'G8'].includes(cellIndex) && { piece: <Horse />, moves: horseMoves, player: 'black' }
-
   const whiteRook = (cellIndex) => ['A1', 'H1'].includes(cellIndex) && { piece: <Rook isWhite />, moves: rookMoves, player: 'white' }
   const blackRook = (cellIndex) => ['A8', 'H8'].includes(cellIndex) && { piece: <Rook />, moves: rookMoves, player: 'black' }
- 
-  const whiteBishop = (cellIndex) => ['C1', 'F1'].includes(cellIndex) && { piece: <Bishop isWhite />, moves: bishopMoves, player: 'white' }
-  const blackBishop = (cellIndex) => ['C8', 'F8'].includes(cellIndex) && { piece: <Bishop />, moves: bishopMoves, player: 'black' }
- 
+  const whiteBishop = (cellIndex) => ['C3', 'F1'].includes(cellIndex) && { piece: <Bishop isWhite />, moves: bishopMoves, player: 'white' }
+  const blackBishop = (cellIndex) => ['C8', 'F6'].includes(cellIndex) && { piece: <Bishop />, moves: bishopMoves, player: 'black' }
   const whiteQueen = (cellIndex) => cellIndex === 'E1' && { piece: <Queen isWhite />, moves: queenMoves, player: 'white' }
   const blackQueen = (cellIndex) => cellIndex === 'E8' && { piece: <Queen />, moves: queenMoves, player: 'black' }
  
@@ -156,11 +162,12 @@ export const Game = () => {
     const clearedBoard = clearMovesFromBoard(newBoard);
 
     setCurrentPlayer(updatePlayer(currentPlayer))
+    setWaitForMove({})
     setBoard(clearedBoard)
   }
 
   const onClickCell = (index, pieceMoves) => {
-    if (pieceMoves) onClickPiece(index, pieceMoves)
+    if (pieceMoves && (Object.keys(waitForMove).length === 0 ) ) onClickPiece(index, pieceMoves)
     else onClickEmptyCell(index, board)
   }
 
