@@ -4,7 +4,7 @@ import { Game } from '../Game'
 
 const App = () => {
   return (
-    <div>
+    <div style={{height: '100%'}}>
       <GlobalStyles/>
       <Game/>
     </div>

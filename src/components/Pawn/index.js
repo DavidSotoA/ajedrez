@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import whitepawn from '../../images/whitePawn.png'
 import blackpawn from '../../images/blackPawn.png'
 import { Piece } from '../Piece'
+import { checkNested } from '../../Utilities';
 
 export const Pawn = ({ isWhite }) => {
   const img = isWhite ? whitepawn : blackpawn
@@ -22,14 +23,13 @@ const atackMoves = (row, col, player, board) => {
     const colIndex = String.fromCharCode(col + move.x)
     const rowIndex = row + move.y
     const indexMove = `${colIndex}${rowIndex}`
-    if (board[indexMove].player && board[indexMove].player !== player) return true
+    if (checkNested(board, indexMove, 'player') && board[indexMove].player !== player) return true
     return false
   })
 
 }
 
 export const pawnMoves = (row, col, cell, board, standarFilter, player) => {
-
   const initMoves = player === 'white' ? [{ x: 0, y: 1 }] : [ { x: 0, y: -1 }]
 
   const moves = [...initMoves, addFirstMove(row, player), ...atackMoves(row, col, player, board) ]

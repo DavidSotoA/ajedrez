@@ -141,7 +141,6 @@ export const Game = () => {
   const [waitForMove, setWaitForMove] = useState({})
   const [board, setBoard] = useState(initBoard)
 
-
   const onClickPiece = (index, pieceMoves) => {
     if (!isMyTurn(board[index], currentPlayer)) return board;
 
@@ -170,9 +169,8 @@ export const Game = () => {
 
   return (
     <Container>
-      <Board size={8} board={board} handleClickCell={onClickCell} />
-      <br/>
-      <strong><h2>Player: {currentPlayer}</h2></strong>
+      <Board size={8} board={board} handleClickCell={onClickCell} />   
+      {/* <h2><span style={{fontWeight: 'bold'}} >Current player: </span>{currentPlayer}</h2> */}
     </Container>
   )
 }
