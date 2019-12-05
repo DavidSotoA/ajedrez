@@ -9,7 +9,7 @@ export const Horse = ({ isWhite }) => {
 }
 
 
-export const horseMoves = (row, col) => {
+export const horseMoves = (row, col, cell, board, standarFilter, player) => {
   const moves = [
     { x: -1, y: 2 },
     { x: 1, y: 2 },
@@ -29,5 +29,5 @@ export const horseMoves = (row, col) => {
     return indexMove
   })
 
-  return horseMoves
+  return standarFilter(horseMoves, board, cell)
 }

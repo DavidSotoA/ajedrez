@@ -9,7 +9,7 @@ export const King = ({ isWhite }) => {
 }
 
 
-export const kingMoves = (row, col) => {
+export const kingMoves = (row, col, cell, board, standarFilter, player) => {
   const moves = [ { x: 0, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 0 }, { x: 1, y: -1 }, { x: 0, y: -1 }, { x: -1, y: -1 }, { x: -1, y: 0 },  { x: -1, y: 1 }]
 
   const kingMoves = moves.map(move => {
@@ -19,5 +19,5 @@ export const kingMoves = (row, col) => {
     return indexMove
   })
 
-  return kingMoves
+  return standarFilter(kingMoves, board, cell)
 }

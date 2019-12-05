@@ -8,7 +8,7 @@ export const Pawn = ({ isWhite }) => {
   return <Piece img={img} value={1} />
 }
 
-export const pawnMoves = (row, col, player) => {
+export const pawnMoves = (row, col, cell, board, standarFilter, player) => {
   const moves = player === 'white' ? [
                                       { x: 0, y: 2 },
                                       { x: 0, y: 1 },
@@ -31,5 +31,5 @@ export const pawnMoves = (row, col, player) => {
     return indexMove
   })
 
-  return PawnMoves;
+  return standarFilter(PawnMoves, board, cell);
 }

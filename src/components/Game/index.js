@@ -4,6 +4,8 @@ import { Board } from '../Board'
 import { Pawn, pawnMoves } from '../Pawn'
 import { Horse, horseMoves } from '../Horse'
 import { King, kingMoves } from '../King'
+import { Rook, rookMoves } from '../Rook'
+
 import { getRow, getCol, validMove } from '../Board'
 import { numberToAlpha, getCellColor, checkNested, getArrayIndexFromBoard, alphaToNumber } from '../../Utilities'
 import clonedeep from 'lodash.clonedeep'
@@ -54,15 +56,21 @@ const movePiece = (fromIndex, toIndex, board) => {
 }
 
 const setPiecesInBoard = (cellIndex) => {
+  const whiteKing = (cellIndex) => cellIndex === 'D4' && { piece: <King isWhite />, moves: kingMoves, player: 'white' }
+  const blackKing = (cellIndex) => cellIndex === 'D8' && { piece: <King />, moves: kingMoves, player: 'black' }
   const whitePawns = (cellIndex) => getRow(cellIndex) === '2' && { piece: <Pawn isWhite />, moves: pawnMoves, player: 'white' }
   const blackPawns = (cellIndex) => getRow(cellIndex) === '7' && { piece: <Pawn />, moves: pawnMoves, player: 'black' }
   const whiteHorses = (cellIndex) => ['C1', 'F1'].includes(cellIndex) && { piece: <Horse isWhite />, moves: horseMoves, player: 'white' }
   const blackHorses = (cellIndex) => ['C8', 'F8'].includes(cellIndex) && { piece: <Horse />, moves: horseMoves, player: 'black' }
-  const whiteKing = (cellIndex) => cellIndex === 'D1' && { piece: <King isWhite />, moves: kingMoves, player: 'white' }
-  const blackKing = (cellIndex) => cellIndex === 'D8' && { piece: <King />, moves: kingMoves, player: 'black' }
+
+  const whiteRook = (cellIndex) => ['A1', 'F3'].includes(cellIndex) && { piece: <Rook isWhite />, moves: rookMoves, player: 'white' }
+  const blackRook = (cellIndex) => ['A8', 'H8'].includes(cellIndex) && { piece: <Rook />, moves: rookMoves, player: 'black' }
+ 
 
 
   return (
+    whiteRook(cellIndex) ||
+    blackRook(cellIndex) ||
     blackKing(cellIndex) ||
     whiteKing(cellIndex) ||
     whitePawns(cellIndex) ||
@@ -81,15 +89,9 @@ const updatePlayer = (currentPlayer) => {
   return currentPlayer === 'white' ? 'black' : 'white'
 }
 
-const moves = (index, board, pieceMoves) => {
-  const row = parseInt(getRow(index))
-  const col = alphaToNumber(getCol(index))
-  const cell = board[index]
-  const player = cell.player
+const standarFilterMoves = (moves, board, cell) => {
 
-  const availabeMoves = pieceMoves(row, col, player)
-
-  const filterMoves = availabeMoves.filter( moveIndex => {
+  return moves.filter( moveIndex => {
     const rowIndex = getRow(moveIndex)
     const colIndex = getCol(moveIndex)
     const targetCell = board[moveIndex]
@@ -97,8 +99,19 @@ const moves = (index, board, pieceMoves) => {
     return validMove(colIndex, rowIndex, cell, targetCell)
   })
 
+}
+
+const moves = (index, board, pieceMoves) => {
+  const row = parseInt(getRow(index))
+  const col = alphaToNumber(getCol(index))
+  const cell = board[index]
+  const player = cell.player
+
+  const moves = pieceMoves(row, col, cell, board, standarFilterMoves, player)
+
+
   const newBoard = { ...board }
-  filterMoves.forEach(moveIndex => {
+  moves.forEach(moveIndex => {
     newBoard[moveIndex].border = 'red'
   })
 
