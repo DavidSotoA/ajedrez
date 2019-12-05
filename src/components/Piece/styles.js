@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const Img = styled.img`
-width: 25px;
-  height: 25px;
+  width:  35px;
+  height: 35px;
   cursor: pointer;
 `

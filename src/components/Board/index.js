@@ -33,7 +33,7 @@ export const validMove = (colIndex, rowIndex, currentCell, targetCell) => {
 export const Board = ({ size = 8, board, handleClickCell }) => {
 
   return (
-    <BoardGame size={size} >
+    <BoardGame size={size} width={400} height={400} >
       {renderCells(board, handleClickCell)}
     </BoardGame>
   )
