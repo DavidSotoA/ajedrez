@@ -145,20 +145,20 @@ export const Game = ({socket}) => {
   
   const initBoard = getDefaultBoard()
   const [gameState, setGameState] = useState(null);
-  const [myPlayer, setMyPlayer] = useState('')
-  const [currentPlayer, setCurrentPlayer] = useState()
+  const [myPlayer, setMyPlayer] = useState()
+  const [currentPlayer, setCurrentPlayer] = useState('white')
   const [waitForMove, setWaitForMove] = useState({})
   const [board, setBoard] = useState(initBoard)
 
 
-  useEffect(() => {
-    socket.on('addPlayer', playerReceiver => { setMyPlayer(getPlayer(playerReceiver.player)) })
+  // useEffect(() => {
+  //   socket.on('addPlayer', playerReceiver => { setMyPlayer(getPlayer(playerReceiver.player)) })
     
-    socket.on('updateGame',(data) => {
-      setGameState(data.gameData)
-      setCurrentPlayer(getPlayer(data.gameData.currentPlayer.player))
-    })
-  }, [])
+  //   socket.on('updateGame',(data) => {
+  //     setGameState(data.gameData)
+  //     setCurrentPlayer(getPlayer(data.gameData.currentPlayer.player))
+  //   })
+  // }, [])
 
 
   const onClickPiece = (index, pieceMoves) => {
@@ -183,8 +183,6 @@ export const Game = ({socket}) => {
   }
 
   const onClickCell = (index, pieceMoves) => {
-    if (!gameState) return;
-    if (checkNested(board, index, 'player') && board[index].player !== myPlayer ) return 
     if (pieceMoves) onClickPiece(index, pieceMoves)
     else onClickEmptyCell(index, board)
   }
@@ -193,7 +191,7 @@ export const Game = ({socket}) => {
     <Container>
       <Board size={8} board={board} handleClickCell={onClickCell} />
 
-      <h2><span style={{fontWeight: 'bold'}} >{renderGameState(gameState, myPlayer, currentPlayer)}</span> </h2>
+      <h2><span style={{fontWeight: 'bold'}} >{'Chess'}</span> </h2>
     </Container>
   )
 }
