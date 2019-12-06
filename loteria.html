@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="./estilobingo.css" rel="stylesheet" type="text/css">
+    <title>Bingo</title>
+</head>
+
+<body background="./img/bolas.gif">
+    <img src="./img/cabecera.png">
+    <p id="demo" class="fecha"></p>
+    <table id="table">
+        <thead>
+            <tr>
+                <th>Alumno</th>
+                <th>Posicion</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+
+        </tbody>
+    </table>
+    <input class="boton" type="button" value="Jugar" onclick="jugar()">
+
+    <script>
+        var d = new Date();
+        document.getElementById("demo").innerHTML = d;
+
+        function clearTable() {
+            document.getElementById('tbody').innerHTML = '';
+        }
+
+        function createtable(winners) {
+
+            winners.forEach((winner, index) => {
+                var tr = document.createElement('tr')
+                var t1 = document.createElement('td')
+                var t2 = document.createElement('td')
+
+                t1.innerHTML = `Posicion ${index + 1}`
+                t2.innerHTML = `${winner}`
+                tr.appendChild(t1)
+                tr.appendChild(t2)
+
+                document.getElementById('tbody').appendChild(tr)
+            })
+
+        }
+
+        function jugar() {
+            clearTable()
+            let nombres = ["Alvaro", "Raul", "Kate", "Jose_Angel", "Carlos", "Manuel", "Julian", "Jose_Manuel", "Antonio_Jesus", "Maria", "Jacopo", "Patricio", "Pedro", "Alejandro", "Jose_Luis", "Pablo", "Gines", "Fran", "Adrian", "Ruben", "Sergio", "Damaso"];
+            let randomNames = []
+            while (nombres.length > 0) {
+                let max = nombres.length - 1
+                let min = 0
+                let index = Math.ceil(Math.random() * (max - min) + min);
+                randomNames.push(nombres[index])
+                nombres = nombres.filter((_, i) => i !== index)
+            }
+
+            createtable(randomNames)
+        }
+
+
+    </script>
+</body>
+
+</html>

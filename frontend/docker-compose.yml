@@ -5,4 +5,4 @@ services:
     ports: 
       - 3000:3000
     volumes:
-      - /home/$USER/ajedrez:/app
+      - /home/$USER/ajedrez/frontend:/app

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Container } from './styles'
 import { Board } from '../Board'
 import { Pawn, pawnMoves } from '../Pawn'
@@ -44,9 +44,6 @@ const clearMovesFromBoard = (board) => {
 
 }
 
-const capturePiece = ( fromCell, targetCell ) => {
-
-}
 
 const movePiece = (fromIndex, toIndex, board) => {
   const newBoard = clonedeep(board);
@@ -132,14 +129,29 @@ const moves = (index, board, pieceMoves) => {
   return newBoard;
 }
 
+const getPlayer = (player) => {
+  player === 0 ? setMyPlayer('white'): setMyPlayer('black')
+}
 
-export const Game = () => {
 
+export const Game = ({socket}) => {
+  
   const initBoard = getDefaultBoard()
-
+  const [gameState, setGameState] = useState(null);
+  const [myPlayer, setMyPlayer] = useState('')
   const [currentPlayer, setCurrentPlayer] = useState('white')
   const [waitForMove, setWaitForMove] = useState({})
   const [board, setBoard] = useState(initBoard)
+
+
+  useEffect(() => {
+    // socket.on('addPlayer', player => { setMyPlayer(getPlayer(player)) })
+    
+    // socket.on('updateGame',(data) => {
+    //   setGameState(data.gameState)
+    // })
+  }, [])
+
 
   const onClickPiece = (index, pieceMoves) => {
     if (!isMyTurn(board[index], currentPlayer)) return board;
@@ -163,7 +175,9 @@ export const Game = () => {
   }
 
   const onClickCell = (index, pieceMoves) => {
-    if (pieceMoves ) onClickPiece(index, pieceMoves)
+    console.log(myPlayer)
+    // if (checkNested(board, index, 'player') && board[index].player !== myPlayer ) return 
+    if (pieceMoves) onClickPiece(index, pieceMoves)
     else onClickEmptyCell(index, board)
   }
 

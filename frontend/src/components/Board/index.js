@@ -10,7 +10,7 @@ const renderCells = (board, handleClickCell) => {
         {cell.piece}
       </Cell>
     )
-  })
+  }) 
 }
 
 export const getCol = (cellIndex) => {
