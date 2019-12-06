@@ -130,7 +130,14 @@ const moves = (index, board, pieceMoves) => {
 }
 
 const getPlayer = (player) => {
-  player === 0 ? setMyPlayer('white'): setMyPlayer('black')
+  player === 0 ? 'white': 'black'
+}
+
+const renderGameState = (gameState, myPlayer, currentPlayer) => {
+  if (!gameState || !checkNested(gameState, 'type')) return 'Connecting...'
+  if (gameState.type === 'waitForPlayer') return 'Waiting for another player'
+  if (gameState.type === 'initGame' && myPlayer === currentPlayer) return 'Your Turn' 
+  if (gameState.type === 'initGame' && myPlayer !== currentPlayer) return 'Oponent Turn' 
 }
 
 
@@ -139,17 +146,18 @@ export const Game = ({socket}) => {
   const initBoard = getDefaultBoard()
   const [gameState, setGameState] = useState(null);
   const [myPlayer, setMyPlayer] = useState('')
-  const [currentPlayer, setCurrentPlayer] = useState('white')
+  const [currentPlayer, setCurrentPlayer] = useState()
   const [waitForMove, setWaitForMove] = useState({})
   const [board, setBoard] = useState(initBoard)
 
 
   useEffect(() => {
-    // socket.on('addPlayer', player => { setMyPlayer(getPlayer(player)) })
+    socket.on('addPlayer', playerReceiver => { setMyPlayer(getPlayer(playerReceiver.player)) })
     
-    // socket.on('updateGame',(data) => {
-    //   setGameState(data.gameState)
-    // })
+    socket.on('updateGame',(data) => {
+      setGameState(data.gameData)
+      setCurrentPlayer(getPlayer(data.gameData.currentPlayer.player))
+    })
   }, [])
 
 
@@ -175,16 +183,17 @@ export const Game = ({socket}) => {
   }
 
   const onClickCell = (index, pieceMoves) => {
-    console.log(myPlayer)
-    // if (checkNested(board, index, 'player') && board[index].player !== myPlayer ) return 
+    if (!gameState) return;
+    if (checkNested(board, index, 'player') && board[index].player !== myPlayer ) return 
     if (pieceMoves) onClickPiece(index, pieceMoves)
     else onClickEmptyCell(index, board)
   }
 
   return (
     <Container>
-      <Board size={8} board={board} handleClickCell={onClickCell} />   
-      {/* <h2><span style={{fontWeight: 'bold'}} >Current player: </span>{currentPlayer}</h2> */}
+      <Board size={8} board={board} handleClickCell={onClickCell} />
+
+      <h2><span style={{fontWeight: 'bold'}} >{renderGameState(gameState, myPlayer, currentPlayer)}</span> </h2>
     </Container>
   )
 }
