@@ -7,9 +7,11 @@ const PLAYERS = {
   black: 1
 }
 
+
 class Game {
 
   constructor() {
+    this.gamePlayers = {}
     this.players = []
     this.currentPlayer;
     this.history = []
@@ -32,6 +34,7 @@ class Game {
   }
 
   updatePlayer() {
+
    this.currentPlayer = this.currentPlayer.id === this.players[PLAYERS.white].id ? this.players[PLAYERS.black] : this.players[PLAYERS.white]
   }
 
@@ -75,5 +78,6 @@ class Game {
     return this.currentPlayer
   }
 }
+
 
 module.exports = Game

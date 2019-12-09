@@ -26,6 +26,7 @@
     "webpack-dev-server": "^3.8.2"
   },
   "dependencies": {
+    "async-redis": "^1.1.7",
     "dotenv": "^8.2.0",
     "lodash.clonedeep": "^4.5.0",
     "react": "^16.10.2",

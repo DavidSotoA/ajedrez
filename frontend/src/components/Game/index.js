@@ -9,6 +9,7 @@ import { Bishop, bishopMoves } from '../Bishop'
 import { Queen, queenMoves } from '../Queen'
 import { GameInfo } from '../GameInfo'
 import { getRow, getCol, validMove } from '../Board'
+import { API_URLS } from '../../consts'
 import { numberToAlpha, getCellColor, checkNested, getArrayIndexFromBoard, alphaToNumber } from '../../Utilities'
 import clonedeep from 'lodash.clonedeep'
 import { config } from './config'
@@ -152,7 +153,6 @@ const emitMove = (socket, move) => {
   socket.emit("move", { data: move });
 }
 
-
 export const Game = ({ socket }) => {
 
   const [gameState, setGameState] = useState({});
@@ -161,29 +161,15 @@ export const Game = ({ socket }) => {
   const [waitForMove, setWaitForMove] = useState({})
   const [board, setBoard] = useState(getDefaultBoard())
 
-
-  const updateGame = (data) => {
-    // setGameState(data.gameData)
-    // setCurrentPlayer(getPlayer(data.gameData.currentPlayer.player))
-
-    // if (data.gameData.type === 'move') {
-    //   const newBoard = movePiece(data.gameData.fromIndex, data.gameData.toIndex, board)
-    //   const clearedBoard = clearMovesFromBoard(newBoard);
-    //   setBoard(clearedBoard)
-    // }
-  }
-
-  const addPlayer = (data) => {
-    setGameState(data.gameData)
-    setMyPlayer(getPlayer(data.playerReceiver.player))
-  }
-
-
   useEffect(() => {
     var copyBoard = clonedeep(board)
 
-    socket.on('addPlayer', data => addPlayer(data))
-    socket.on('updateGame', data => {  
+    socket.on('addPlayer', data => {
+      setGameState(data.gameData)
+      setMyPlayer(getPlayer(data.playerReceiver.player))
+    })
+
+    socket.on('updateGame', data => {
       setGameState(data.gameData)
       setCurrentPlayer(getPlayer(data.gameData.currentPlayer.player))
 
