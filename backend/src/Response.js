@@ -16,12 +16,13 @@ class GameData {
   }
 
   toJson() {
-    return {
+    const response = {
       type: this.type,
-      currentPlayer: this.currentPlayer,
       fromIndex: this.fromIndex,
       toIndex: this.toIndex
-    }
+    };
+    if (this.currentPlayer) response.currentPlayer = this.currentPlayer.toJson()
+    return response
   }
 }
 

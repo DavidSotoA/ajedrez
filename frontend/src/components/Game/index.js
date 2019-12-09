@@ -7,7 +7,7 @@ import { King, kingMoves } from '../King'
 import { Rook, rookMoves } from '../Rook'
 import { Bishop, bishopMoves } from '../Bishop'
 import { Queen, queenMoves } from '../Queen'
-
+import { GameInfo } from '../GameInfo'
 import { getRow, getCol, validMove } from '../Board'
 import { numberToAlpha, getCellColor, checkNested, getArrayIndexFromBoard, alphaToNumber } from '../../Utilities'
 import clonedeep from 'lodash.clonedeep'
@@ -35,7 +35,7 @@ const clearMovesFromBoard = (board) => {
   for (let indexCell in cleanBoard) {
     if (checkNested(cleanBoard, indexCell, 'border')) cleanBoard[indexCell].border = null
     if (cleanBoard[indexCell].color === config.cellColorClick) {
-      cleanBoard[indexCell].color = getCellColor(getArrayIndexFromBoard(indexCell, config.boardSize), config.boardSize, config.cellColorOne, config.cellColorTwo )
+      cleanBoard[indexCell].color = getCellColor(getArrayIndexFromBoard(indexCell, config.boardSize), config.boardSize, config.cellColorOne, config.cellColorTwo)
     }
 
   }
@@ -43,7 +43,6 @@ const clearMovesFromBoard = (board) => {
   return cleanBoard
 
 }
-
 
 const movePiece = (fromIndex, toIndex, board) => {
   const newBoard = clonedeep(board);
@@ -65,7 +64,7 @@ const setPiecesInBoard = (cellIndex) => {
 
   const whitePawns = (cellIndex) => getRow(cellIndex) === '2' && { piece: <Pawn isWhite />, moves: pawnMoves, player: 'white' }
   const blackPawns = (cellIndex) => getRow(cellIndex) === '7' && { piece: <Pawn />, moves: pawnMoves, player: 'black' }
-  
+
   const whiteHorses = (cellIndex) => ['B1', 'G1'].includes(cellIndex) && { piece: <Horse isWhite />, moves: horseMoves, player: 'white' }
   const blackHorses = (cellIndex) => ['B8', 'G8'].includes(cellIndex) && { piece: <Horse />, moves: horseMoves, player: 'black' }
   const whiteRook = (cellIndex) => ['A1', 'H1'].includes(cellIndex) && { piece: <Rook isWhite />, moves: rookMoves, player: 'white' }
@@ -74,7 +73,7 @@ const setPiecesInBoard = (cellIndex) => {
   const blackBishop = (cellIndex) => ['C8', 'F8'].includes(cellIndex) && { piece: <Bishop />, moves: bishopMoves, player: 'black' }
   const whiteQueen = (cellIndex) => cellIndex === 'E1' && { piece: <Queen isWhite />, moves: queenMoves, player: 'white' }
   const blackQueen = (cellIndex) => cellIndex === 'E8' && { piece: <Queen />, moves: queenMoves, player: 'black' }
- 
+
   return (
     whiteQueen(cellIndex) ||
     blackQueen(cellIndex) ||
@@ -92,17 +91,23 @@ const setPiecesInBoard = (cellIndex) => {
   )
 }
 
-const isMyTurn = (cell, currentPlayer) => {
-  return (cell.player && cell.player ===  currentPlayer)
+
+const isGameReady = (gameState) => {
+  if (!checkNested(gameState, 'type') || gameState.type === 'waitForPlayer') return false
+  return true
 }
 
-const updatePlayer = (currentPlayer) => {
-  return currentPlayer === 'white' ? 'black' : 'white'
+const isMyTurn = (myPlayer, currentPlayer) => {
+  return (myPlayer === currentPlayer)
+}
+
+const isValidPiece = (cell, myPlayer) => {
+  return (checkNested(cell, 'player') && cell.player === myPlayer)
 }
 
 const standarFilterMoves = (moves, board, cell) => {
 
-  return moves.filter( moveIndex => {
+  return moves.filter(moveIndex => {
     const rowIndex = getRow(moveIndex)
     const colIndex = getCol(moveIndex)
     const targetCell = board[moveIndex]
@@ -130,56 +135,85 @@ const moves = (index, board, pieceMoves) => {
 }
 
 const getPlayer = (player) => {
-  player === 0 ? 'white': 'black'
+  return (player === 0 ? 'white' : 'black')
 }
 
-const renderGameState = (gameState, myPlayer, currentPlayer) => {
+const infoGameState = (gameState, myPlayer, currentPlayer) => {
   if (!gameState || !checkNested(gameState, 'type')) return 'Connecting...'
   if (gameState.type === 'waitForPlayer') return 'Waiting for another player'
-  if (gameState.type === 'initGame' && myPlayer === currentPlayer) return 'Your Turn' 
-  if (gameState.type === 'initGame' && myPlayer !== currentPlayer) return 'Oponent Turn' 
+  if (gameState.type === 'initGame' && myPlayer === currentPlayer) return 'Your Turn'
+  if (gameState.type === 'initGame' && myPlayer !== currentPlayer) return 'Oponent Turn'
+
+  if (gameState.type === 'move' && myPlayer === currentPlayer) return 'Your Turn'
+  if (gameState.type === 'move' && myPlayer !== currentPlayer) return 'Oponent Turn'
+}
+
+const emitMove = (socket, move) => {
+  socket.emit("move", { data: move });
 }
 
 
-export const Game = ({socket}) => {
-  
-  const initBoard = getDefaultBoard()
-  const [gameState, setGameState] = useState(null);
-  const [myPlayer, setMyPlayer] = useState()
-  const [currentPlayer, setCurrentPlayer] = useState('white')
+export const Game = ({ socket }) => {
+
+  const [gameState, setGameState] = useState({});
+  const [myPlayer, setMyPlayer] = useState('')
+  const [currentPlayer, setCurrentPlayer] = useState('')
   const [waitForMove, setWaitForMove] = useState({})
-  const [board, setBoard] = useState(initBoard)
+  const [board, setBoard] = useState(getDefaultBoard())
 
 
-  // useEffect(() => {
-  //   socket.on('addPlayer', playerReceiver => { setMyPlayer(getPlayer(playerReceiver.player)) })
-    
-  //   socket.on('updateGame',(data) => {
-  //     setGameState(data.gameData)
-  //     setCurrentPlayer(getPlayer(data.gameData.currentPlayer.player))
-  //   })
-  // }, [])
+  const updateGame = (data) => {
+    // setGameState(data.gameData)
+    // setCurrentPlayer(getPlayer(data.gameData.currentPlayer.player))
+
+    // if (data.gameData.type === 'move') {
+    //   const newBoard = movePiece(data.gameData.fromIndex, data.gameData.toIndex, board)
+    //   const clearedBoard = clearMovesFromBoard(newBoard);
+    //   setBoard(clearedBoard)
+    // }
+  }
+
+  const addPlayer = (data) => {
+    setGameState(data.gameData)
+    setMyPlayer(getPlayer(data.playerReceiver.player))
+  }
+
+
+  useEffect(() => {
+    var copyBoard = clonedeep(board)
+
+    socket.on('addPlayer', data => addPlayer(data))
+    socket.on('updateGame', data => {  
+      setGameState(data.gameData)
+      setCurrentPlayer(getPlayer(data.gameData.currentPlayer.player))
+
+      if (data.gameData.type === 'move') {
+        const newBoard = movePiece(data.gameData.fromIndex, data.gameData.toIndex, copyBoard)
+        const clearedBoard = clearMovesFromBoard(newBoard);
+        copyBoard = clonedeep(clearedBoard)
+        setBoard(clearedBoard)
+      }
+    })
+  }, [])
 
 
   const onClickPiece = (index, pieceMoves) => {
-    if (!isMyTurn(board[index], currentPlayer)) return board;
+    if (!isGameReady(gameState)) return board
+    if (!isMyTurn(currentPlayer, myPlayer)) return board;
+    if (!isValidPiece(board[index], myPlayer)) return board
 
     const clearedBoard = clearMovesFromBoard(board)
-    const newBoard = moves(index, clearedBoard, pieceMoves)
-    newBoard[index].color = config.cellColorClick 
+    const boardWithMoves = moves(index, clearedBoard, pieceMoves)
+    boardWithMoves[index].color = config.cellColorClick
     setWaitForMove({ fromIndex: index })
-    setBoard(newBoard)
+    setBoard(boardWithMoves)
   }
 
   const onClickEmptyCell = (index, board) => {
     if (!checkNested(board, index, 'border')) return
     if (board[index].border !== config.colorToMove) return
 
-    const newBoard = movePiece(waitForMove.fromIndex, index, board)
-    const clearedBoard = clearMovesFromBoard(newBoard);
-
-    setCurrentPlayer(updatePlayer(currentPlayer))
-    setBoard(clearedBoard)
+    emitMove(socket, { fromIndex: waitForMove.fromIndex, toIndex: index })
   }
 
   const onClickCell = (index, pieceMoves) => {
@@ -190,8 +224,7 @@ export const Game = ({socket}) => {
   return (
     <Container>
       <Board size={8} board={board} handleClickCell={onClickCell} />
-
-      <h2><span style={{fontWeight: 'bold'}} >{'Chess'}</span> </h2>
+      <GameInfo myPlayer={myPlayer} currentPlayer={currentPlayer} gameState={infoGameState(gameState, myPlayer, currentPlayer)} />
     </Container>
   )
 }

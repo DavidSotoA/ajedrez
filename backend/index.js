@@ -17,11 +17,18 @@ io.on('connection', socket => {
     socket.emit('error', dataResponse.error)
   }
 
-  socket.emit('addPlayer', dataResponse.playerReceiver)
+  socket.emit('addPlayer', dataResponse)
 
   if ( dataResponse.gameData.type === GAME_DATA_STATE.initGame) {
-    io.emit('updateGame', dataResponse)
+    io.emit('updateGame', dataResponse) 
   }
+
+  socket.on('move', (move) =>{
+    console.log('===============move===============')
+    const dataReponse = game.move(move.data).toJson()
+    console.log(dataReponse)
+    io.emit('updateGame', dataReponse)
+  })
 
 });
 

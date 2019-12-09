@@ -11,6 +11,7 @@ export const BoardGame = styled.div`
   border: solid #a39c94 8px;
   grid-template-columns: repeat(${p => p.size}, ${p => p.height/p.size}px);
   grid-template-rows: repeat(${p => p.size}, ${p => p.width/p.size}px);
+  margin-bottom: 10px;
 `
 
 export const Cell = styled.div`

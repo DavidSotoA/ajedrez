@@ -21,8 +21,18 @@ class Game {
     this.history = []
   }
 
+  move(move) {
+    this.updatePlayer()
+    const gameData = new GameData({ currentPlayer: this.currentPlayer,
+                                    fromIndex: move.fromIndex,
+                                    toIndex: move.toIndex,
+                                    type: GAME_DATA_STATE.move })
+    this.history.push(gameData)
+    return new Response({gameData, playerReceiver: this.currentPlayer})
+  }
+
   updatePlayer() {
-    this.currentPlayer.id === this.players[PLAYERS.white].id ? this.players[PLAYERS.black] : this.players[PLAYERS.white]
+   this.currentPlayer = this.currentPlayer.id === this.players[PLAYERS.white].id ? this.players[PLAYERS.black] : this.players[PLAYERS.white]
   }
 
   isReady() {
