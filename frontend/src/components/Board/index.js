@@ -2,6 +2,7 @@ import React from 'react'
 import { BoardGame, Cell } from './styles'
 
 const renderCells = (board, handleClickCell) => {
+  if (!board) return null
 
   return Object.keys(board).map((key, index) => {
     const cell = board[key]

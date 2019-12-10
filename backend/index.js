@@ -6,7 +6,7 @@ const Game = require('./src/Game')
 const { GAME_DATA_STATE } = require('./src/Response')
 const { getRedisData } = require('./src/redis/index')
 
-const game = new Game()
+let game = new Game()
 
 app.get('/data', async (_, res) => {
   const redisData = await getRedisData();
@@ -33,6 +33,13 @@ io.on('connection', async (socket) => {
     const dataReponse = game.move(move.data).toJson()
     console.log(dataReponse)
     io.emit('updateGame', dataReponse)
+  })
+
+  socket.on('disconnect', (data) => {
+    console.log('===============disconnect===============')
+    console.log(data)
+
+    // game = new Game()
   })
 
 });

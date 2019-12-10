@@ -8,6 +8,10 @@ export const alphaToNumber = (alpha) => {
   return alpha.charCodeAt(0);
 }
 
+export const isEmptyObject = (obj) => {
+  return (Object.keys(obj).length === 0 && obj.constructor === Object)
+}
+
 
 export const getArrayIndexFromBoard = (boardIndex, boardSize) => {
   const [col, row]  = boardIndex.split('');

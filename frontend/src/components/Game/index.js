@@ -10,7 +10,7 @@ import { Queen, queenMoves } from '../Queen'
 import { GameInfo } from '../GameInfo'
 import { getRow, getCol, validMove } from '../Board'
 import { API_URLS } from '../../consts'
-import { numberToAlpha, getCellColor, checkNested, getArrayIndexFromBoard, alphaToNumber } from '../../Utilities'
+import { isEmptyObject, numberToAlpha, getCellColor, checkNested, getArrayIndexFromBoard, alphaToNumber } from '../../Utilities'
 import clonedeep from 'lodash.clonedeep'
 import { config } from './config'
 
@@ -28,6 +28,27 @@ const getDefaultBoard = () => {
   }, {})
 
   return board
+}
+
+const rotateBoard = (board) => {
+  const newBoard = clonedeep(board)
+  const keys = Object.keys(newBoard)
+
+  for (let index = 0; index < keys.length/2; index++) {
+    const key = keys[index];
+    const row = getRow(key)
+    const col = getCol(key)
+
+    const keyMirror = `${col}${config.boardSize - row + 1}`
+    const cell = newBoard[key]
+    const mirrorCell = newBoard[keyMirror]
+
+    newBoard[key] = mirrorCell
+    newBoard[keyMirror] = cell
+  }
+
+  return newBoard
+  
 }
 
 const clearMovesFromBoard = (board) => {
@@ -126,7 +147,6 @@ const moves = (index, board, pieceMoves) => {
 
   const moves = pieceMoves(row, col, cell, board, standarFilterMoves, player)
 
-
   const newBoard = { ...board }
   moves.forEach(moveIndex => {
     newBoard[moveIndex].border = 'red'
@@ -167,6 +187,7 @@ export const Game = ({ socket }) => {
     socket.on('addPlayer', data => {
       setGameState(data.gameData)
       setMyPlayer(getPlayer(data.playerReceiver.player))
+      if(getPlayer(data.playerReceiver.player) === 'black') setBoard(rotateBoard(board))
     })
 
     socket.on('updateGame', data => {
@@ -177,7 +198,9 @@ export const Game = ({ socket }) => {
         const newBoard = movePiece(data.gameData.fromIndex, data.gameData.toIndex, copyBoard)
         const clearedBoard = clearMovesFromBoard(newBoard);
         copyBoard = clonedeep(clearedBoard)
-        setBoard(clearedBoard)
+
+        if (myPlayer === 'black') setBoard(rotateBoard(clearedBoard))
+        else setBoard(clearedBoard)
       }
     })
   }, [])
@@ -200,10 +223,11 @@ export const Game = ({ socket }) => {
     if (board[index].border !== config.colorToMove) return
 
     emitMove(socket, { fromIndex: waitForMove.fromIndex, toIndex: index })
+    setWaitForMove({})
   }
 
   const onClickCell = (index, pieceMoves) => {
-    if (pieceMoves) onClickPiece(index, pieceMoves)
+    if (pieceMoves && isValidPiece(board[index], myPlayer)) onClickPiece(index, pieceMoves)
     else onClickEmptyCell(index, board)
   }
 
